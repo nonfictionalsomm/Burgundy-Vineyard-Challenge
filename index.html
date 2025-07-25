@@ -31,9 +31,6 @@
             color: white;
             border-color: #dc2626;
         }
-        #feedback, #final-message {
-            min-height: 2.5rem; /* Reserve space for text */
-        }
         .hidden {
             display: none;
         }
@@ -86,6 +83,18 @@
         </div>
     </div>
 
+    <!-- Answer Feedback Modal -->
+    <div id="feedback-modal-overlay" class="modal-overlay"></div>
+    <div id="feedback-modal" class="modal-container w-full max-w-sm">
+        <div id="feedback-modal-content" class="bg-white rounded-2xl shadow-xl p-8 text-center">
+            <h2 id="feedback-title" class="text-4xl font-bold title-font mb-4"></h2>
+            <p id="feedback-text" class="text-gray-600 mb-6"></p>
+            <button id="continue-button" class="w-full bg-red-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-900 transition-colors duration-200 shadow-md">
+                Continue
+            </button>
+        </div>
+    </div>
+
     <!-- Main Game Content -->
     <div id="main-content" class="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10 hidden">
         <div class="text-center mb-8">
@@ -107,23 +116,20 @@
             <p class="text-5xl font-bold text-red-800 mb-4" id="final-score-display"></p>
             <p class="text-xl text-gray-700 font-semibold mb-4" id="final-percentage-display"></p>
             <p class="text-lg text-gray-600" id="final-message"></p>
+            <button id="play-again-button" class="mt-6 bg-red-800 text-white font-bold py-3 px-8 rounded-lg hover:bg-red-900 transition-colors duration-200 shadow-md">
+                Play Again?
+            </button>
         </div>
 
-        <!-- Feedback and Controls -->
-        <div class="text-center">
-            <div id="feedback" class="text-lg font-semibold mb-4 transition-opacity duration-300"></div>
-            <div class="flex items-center justify-between">
-                <div class="text-left">
-                    <span class="text-gray-500">Score</span>
-                    <p id="score" class="text-2xl font-bold text-gray-800">0</p>
-                </div>
-                <div>
-                     <span class="text-gray-500">Round</span>
-                    <p id="round-counter" class="text-2xl font-bold text-gray-800">0 / 20</p>
-                </div>
-                <button id="next-button" class="bg-red-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-900 transition-colors duration-200 shadow-md hidden">
-                    Next Question &rarr;
-                </button>
+        <!-- Footer Info -->
+        <div id="footer-info" class="flex items-center justify-between text-center mt-8">
+            <div class="text-left">
+                <span class="text-gray-500">Score</span>
+                <p id="score" class="text-2xl font-bold text-gray-800">0</p>
+            </div>
+            <div>
+                 <span class="text-gray-500">Round</span>
+                <p id="round-counter" class="text-2xl font-bold text-gray-800">0 / 20</p>
             </div>
         </div>
     </div>
@@ -176,18 +182,22 @@
         const welcomeModal = document.getElementById('welcome-modal');
         const modalOverlay = document.getElementById('modal-overlay');
         const startGameButton = document.getElementById('start-game-button');
+        const feedbackModal = document.getElementById('feedback-modal');
+        const feedbackModalOverlay = document.getElementById('feedback-modal-overlay');
+        const feedbackTitle = document.getElementById('feedback-title');
+        const feedbackText = document.getElementById('feedback-text');
+        const continueButton = document.getElementById('continue-button');
         const gameArea = document.getElementById('game-area');
         const finalScoreArea = document.getElementById('final-score-area');
         const vineyardsEl = document.getElementById('vineyards');
         const optionsContainer = document.getElementById('options-container');
-        const feedbackEl = document.getElementById('feedback');
         const scoreEl = document.getElementById('score');
         const roundCounterEl = document.getElementById('round-counter');
-        const nextButton = document.getElementById('next-button');
         const finalScoreDisplay = document.getElementById('final-score-display');
         const finalPercentageDisplay = document.getElementById('final-percentage-display');
         const finalMessage = document.getElementById('final-message');
-        const subtitle = document.getElementById('subtitle');
+        const playAgainButton = document.getElementById('play-again-button');
+        const footerInfo = document.getElementById('footer-info');
 
         // Game State
         const totalRounds = 20;
@@ -209,11 +219,8 @@
             scoreEl.textContent = '0';
             
             gameArea.classList.remove('hidden');
+            footerInfo.classList.remove('hidden');
             finalScoreArea.classList.add('hidden');
-            subtitle.classList.remove('hidden');
-            
-            nextButton.removeEventListener('click', initializeGame);
-            nextButton.addEventListener('click', generateQuestion);
             
             generateQuestion();
         }
@@ -225,9 +232,6 @@
             }
             currentRound++;
 
-            feedbackEl.textContent = '';
-            feedbackEl.className = 'text-lg font-semibold mb-4 transition-opacity duration-300';
-            nextButton.classList.add('hidden');
             roundCounterEl.textContent = `${currentRound} / ${totalRounds}`;
 
             const villages = Object.keys(vineyardData);
@@ -259,16 +263,15 @@
                 const button = document.createElement('button');
                 button.className = 'btn-option w-full bg-white border border-gray-300 text-gray-700 font-semibold p-4 rounded-lg shadow-sm hover:bg-gray-50 cursor-pointer';
                 button.textContent = option.replace(/ AOP$/, "");
-                button.dataset.optionValue = option; // Store the original value with AOP
+                button.dataset.optionValue = option;
                 optionsContainer.appendChild(button);
             });
         }
 
         function handleOptionClick(event) {
             const button = event.target.closest('button.btn-option');
-            if (!button || button.disabled) {
-                return; // Ignore clicks if not on a button or if buttons are disabled
-            }
+            if (!button || button.disabled) return;
+            
             const selectedOption = button.dataset.optionValue;
             checkAnswer(selectedOption, button);
         }
@@ -284,28 +287,50 @@
 
             if (selectedOption === correctVillage) {
                 score++;
-                feedbackEl.textContent = 'Correct!';
-                feedbackEl.classList.add('text-green-600');
-                button.classList.add('correct');
+                showFeedbackModal(true);
             } else {
-                feedbackEl.innerHTML = `Incorrect. The correct village is <strong class="underline">${correctVillage.replace(/ AOP$/, "")}</strong>.`;
-                feedbackEl.classList.add('text-red-600');
                 button.classList.add('incorrect');
+                showFeedbackModal(false);
             }
             
             scoreEl.textContent = score;
-            nextButton.classList.remove('hidden');
-            
-            if (currentRound >= totalRounds) {
-                 nextButton.textContent = 'See Results';
-            }
         }
         
+        function showFeedbackModal(isCorrect) {
+            if (isCorrect) {
+                feedbackTitle.textContent = "Correct!";
+                feedbackTitle.className = "text-4xl font-bold title-font mb-4 text-green-600";
+                feedbackText.textContent = "Excellent! You've nailed it.";
+            } else {
+                feedbackTitle.textContent = "Incorrect";
+                feedbackTitle.className = "text-4xl font-bold title-font mb-4 text-red-600";
+                feedbackText.innerHTML = `The correct village is <strong class="underline">${correctVillage.replace(/ AOP$/, "")}</strong>.`;
+            }
+            
+            if (currentRound >= totalRounds) {
+                continueButton.textContent = "See Results";
+            } else {
+                continueButton.textContent = "Next Round";
+            }
+
+            feedbackModal.classList.add('active');
+            feedbackModalOverlay.classList.add('active');
+        }
+
+        function hideFeedbackModal() {
+            feedbackModal.classList.remove('active');
+            feedbackModalOverlay.classList.remove('active');
+        }
+
+        function advanceGame() {
+            hideFeedbackModal();
+            generateQuestion();
+        }
+
         function endGame() {
             gameArea.classList.add('hidden');
+            footerInfo.classList.add('hidden');
             finalScoreArea.classList.remove('hidden');
-            subtitle.classList.add('hidden');
-            feedbackEl.textContent = '';
             
             const percentage = Math.round((score / totalRounds) * 100);
             finalScoreDisplay.textContent = `${score} / ${totalRounds}`;
@@ -324,29 +349,26 @@
                 message = "A noble start! Burgundy is complex, but every expert starts somewhere. Keep exploring!";
             }
             finalMessage.textContent = message;
-            
-            nextButton.textContent = 'Play Again?';
-            nextButton.removeEventListener('click', generateQuestion);
-            nextButton.addEventListener('click', initializeGame);
         }
 
-        // Show welcome modal on page load
+        // --- Event Listeners ---
         window.onload = () => {
             welcomeModal.classList.add('active');
             modalOverlay.classList.add('active');
         };
 
-        // Start game when button is clicked
         startGameButton.addEventListener('click', () => {
             welcomeModal.classList.remove('active');
             modalOverlay.classList.remove('active');
             mainContent.classList.remove('hidden');
             initializeGame();
         });
-        
-        // Add single event listener to the options container
+
+        continueButton.addEventListener('click', advanceGame);
+        playAgainButton.addEventListener('click', initializeGame);
         optionsContainer.addEventListener('click', handleOptionClick);
     </script>
 
 </body>
 </html>
+
