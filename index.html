@@ -17,7 +17,7 @@
         .btn-option {
             transition: all 0.2s ease-in-out;
         }
-        .btn-option:hover {
+        .btn-option:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
@@ -47,9 +47,11 @@
             z-index: 40;
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
+            pointer-events: none;
         }
         .modal-overlay.active {
             opacity: 1;
+            pointer-events: auto;
         }
         .modal-container {
             position: fixed;
@@ -59,10 +61,12 @@
             z-index: 50;
             opacity: 0;
             transition: all 0.3s ease-in-out;
+            pointer-events: none;
         }
         .modal-container.active {
             transform: translate(-50%, -50%) scale(1);
             opacity: 1;
+            pointer-events: auto;
         }
     </style>
 </head>
@@ -253,18 +257,27 @@
             optionsContainer.innerHTML = '';
             options.forEach(option => {
                 const button = document.createElement('button');
-                button.className = 'btn-option w-full bg-white border border-gray-300 text-gray-700 font-semibold p-4 rounded-lg shadow-sm hover:bg-gray-50';
+                button.className = 'btn-option w-full bg-white border border-gray-300 text-gray-700 font-semibold p-4 rounded-lg shadow-sm hover:bg-gray-50 cursor-pointer';
                 button.textContent = option.replace(/ AOP$/, "");
-                button.onclick = () => checkAnswer(option, button);
+                button.dataset.optionValue = option; // Store the original value with AOP
                 optionsContainer.appendChild(button);
             });
+        }
+
+        function handleOptionClick(event) {
+            const button = event.target.closest('button.btn-option');
+            if (!button || button.disabled) {
+                return; // Ignore clicks if not on a button or if buttons are disabled
+            }
+            const selectedOption = button.dataset.optionValue;
+            checkAnswer(selectedOption, button);
         }
 
         function checkAnswer(selectedOption, button) {
             const allButtons = optionsContainer.querySelectorAll('button');
             allButtons.forEach(btn => {
                 btn.disabled = true;
-                if (btn.textContent === correctVillage.replace(/ AOP$/, "")) {
+                if (btn.dataset.optionValue === correctVillage) {
                     btn.classList.add('correct');
                 }
             });
@@ -330,6 +343,9 @@
             mainContent.classList.remove('hidden');
             initializeGame();
         });
+        
+        // Add single event listener to the options container
+        optionsContainer.addEventListener('click', handleOptionClick);
     </script>
 
 </body>
