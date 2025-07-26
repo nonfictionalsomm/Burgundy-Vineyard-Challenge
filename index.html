@@ -121,8 +121,18 @@
     </div>
 
     <!-- Main Game Content -->
-    <div id="main-content" class="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10 hidden">
-        <div class="text-center mb-8">
+    <div id="main-content" class="relative w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10 hidden">
+        <!-- Main Menu Button -->
+        <div class="absolute top-4 left-4 md:top-6 md:left-6">
+            <button id="main-menu-button" class="text-gray-500 hover:text-red-800 font-semibold transition-colors duration-200 flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-left" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                </svg>
+                Main Menu
+            </button>
+        </div>
+
+        <div class="text-center mb-8 pt-8">
             <h1 class="text-4xl md:text-5xl font-bold text-gray-800 title-font">The Burgundy Gambit</h1>
             <p id="subtitle" class="text-gray-600 mt-2">Which village are these vineyards located in?</p>
         </div>
@@ -366,6 +376,7 @@
         const finalMessage = document.getElementById('final-message');
         const playAgainButton = document.getElementById('play-again-button');
         const footerInfo = document.getElementById('footer-info');
+        const mainMenuButton = document.getElementById('main-menu-button');
 
         // Game State
         const totalRounds = 20;
@@ -615,6 +626,12 @@
         continueButton.addEventListener('click', advanceGame);
         playAgainButton.addEventListener('click', initializeGame);
         optionsContainer.addEventListener('click', handleOptionClick);
+        
+        mainMenuButton.addEventListener('click', () => {
+            mainContent.classList.add('hidden');
+            welcomeModal.classList.add('active');
+            modalOverlay.classList.add('active');
+        });
     </script>
 
 </body>
