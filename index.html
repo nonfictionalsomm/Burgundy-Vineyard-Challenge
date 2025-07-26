@@ -77,11 +77,35 @@
             <p class="text-gray-600 mb-2">Welcome, wine adventurer!</p>
             <p class="text-gray-600 mb-4">We'll show you three famous Burgundian vineyards (*climats*). Your task is to identify the correct village appellation where they are located. The challenge covers vineyards from Chablis to Beaujolais.</p>
             <p class="text-gray-600 mb-6">The path to mastery is paved with practice. Play again and again to sharpen your knowledge and become a true Burgundy legend!</p>
-            <button id="start-game-button" class="w-full bg-red-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-900 transition-colors duration-200 shadow-md">
-                Begin the Challenge
-            </button>
+            <div class="flex flex-col sm:flex-row gap-4">
+                 <button id="study-button" class="w-full bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors duration-200">
+                    Study First?
+                </button>
+                <button id="start-game-button" class="w-full bg-red-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-900 transition-colors duration-200 shadow-md">
+                    Begin the Challenge
+                </button>
+            </div>
         </div>
     </div>
+    
+    <!-- Study Modal -->
+    <div id="study-modal-overlay" class="modal-overlay"></div>
+    <div id="study-modal" class="modal-container w-full max-w-3xl">
+        <div class="bg-white rounded-2xl shadow-xl p-8 flex flex-col" style="max-height: 80vh;">
+            <div class="flex-shrink-0 text-center mb-4">
+                <h2 class="text-3xl font-bold text-gray-800 title-font">Vineyard Database</h2>
+            </div>
+            <div id="study-content" class="flex-grow overflow-y-auto pr-4">
+                <!-- Data will be injected here -->
+            </div>
+            <div class="flex-shrink-0 mt-6 text-center">
+                <button id="close-study-button" class="bg-red-800 text-white font-bold py-2 px-8 rounded-lg hover:bg-red-900 transition-colors duration-200 shadow-md">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Answer Feedback Modal -->
     <div id="feedback-modal-overlay" class="modal-overlay"></div>
@@ -136,45 +160,134 @@
 
     <script>
         const vineyardData = {
-            "Chablis": ["Berdiot", "Chapelot", "Côte de Bréchain", "Côte de Fontenay", "Côte des Prés Girots", "Côte de Vaubarousse", "Fourchaume", "L'Homme Mort", "Les Fourneaux", "Mont de Milieu", "Montée de Tonnerre", "Morein", "Pied d'Aloup", "Vaucoupin", "Vaulorent", "Vaupulent", "Beauroy", "Beugnons", "Butteaux", "Chatains", "Chaume de Talvat", "Côte de Léchet", "Côte de Cuisy", "Côte de Jouan", "Côte de Savant", "Forêts", "Les Beauregards", "Les Épinottes", "Les Lys", "Mélinots", "Montmains", "Roncières", "Sécher", "Troesmes", "Vau de Vey", "Vaillons", "Vaugiraut", "Vosgros", "Vau Ligneau", "Vaux Ragons", "Blanchot", "Bougros", "Grenouilles", "Les Clos", "Preuses", "Valmur", "Vaudésir"],
-            "Fixin": ["Arvelets", "Clos de la Perrière", "Clos Napoléon", "Hervelets", "Le Clos du Chapitre", "Les Meix Bas"],
-            "Gevrey-Chambertin": ["Chambertin", "Chambertin Clos de Bèze", "Chapelle-Chambertin", "Charmes-Chambertin", "Griotte-Chambertin", "Latricières-Chambertin", "Mazis-Chambertin", "Mazoyères-Chambertin", "Ruchottes-Chambertin", "Au-Closeau", "Aux Combottes", "Bel Air", "Champonnet", "Cherbaudes", "Clos des Varoilles", "Clos du Chapitre", "Clos Prieur", "Clos Saint-Jacques", "Craipillot", "En Ergot", "Estournelles-Saint-Jacques", "Fonteny", "Issarts", "La Boissière", "La Combe-au-Moine", "La Perrière", "La Romanée", "Lavaux-Saint-Jacques", "Les Cazetiers", "Les Champeaux", "Les Corbeaux", "Les Goulots", "Les Petits-Cazetiers", "Petite-Chapelle", "Poissenot"],
-            "Morey-Saint-Denis": ["Bonnes Mares", "Clos de La Roche", "Clos de Tart", "Clos des Lambrays", "Clos Saint-Denis", "Aux Charmes", "Aux Cheseaux", "Clos Baulet", "Clos des Ormes", "Clos Sorbè", "Côte Rotie", "La Bussière", "La Riotte", "Le Village", "Les Blanchards", "Les Chaffots", "Les Charrières", "Les Chenevery", "Les Faconnières", "Les Genavrières", "Les Gruenchers", "Les Millandes", "Les Ruchots", "Les Sorbès", "Monts Luisants"],
-            "Chambolle-Musigny": ["Bonnes Mares", "Musigny", "Aux Beaux Bruns", "Aux Combottes", "Aux Échanges", "Derrière la Grange", "La Combe d'Orveau", "Les Amoureuses", "Les Baudes", "Les Borniques", "Les Carrières", "Les Chabiots", "Les Charmes", "Les Chatelots", "Les Combottes", "Les Cras", "Les Feusselottes/Les Feusselotes", "Les Fuées", "Les Grand Murs", "Les Groseilles", "Les Gruenchers", "Les Hauts-Doix", "Les Lavrottes", "Les Noirots", "Les Plantes", "Les Sentiers", "Les Véroilles"],
-            "Vougeot": ["Clos de Vougeot", "Clos de la Perrière", "Le Clos Blanc", "Les Crâs", "Le Petits Vougeots"],
-            "Vosne-Romanée": ["Echézeaux", "Grands-Echézeaux", "La Grande Rue", "Richebourg", "La Romanée", "Romanée-Conti", "Romanée-Saint-Vivant", "La Tâche", "Aux Brûlées", "Au-dessus des Malconsorts", "Aux Malconsorts", "Aux Raignots", "Clos des Réas", "Cros Parantoux", "En Orveaux", "Les Beaux Monts", "Les Chaumes", "La Croix Rameau", "Les Gaudichots", "Les Petits Monts", "Les Rouges", "Les Suchots"],
-            "Nuits-Saint-Georges": ["Aux Argillas", "Aux Boudots", "Aux Bousselots", "Aux Chaignots", "Aux Champs Perdrix", "Aux Cras", "Aux Murgers", "Aux Perdrix", "Aux Thorey", "Aux Vignerondes", "Chaines Carteaux", "Château Gris", "Clos Arlot", "Clos des Argillières", "Clos des Corvées", "Clos des Corvées Pagets", "Clos des Forêts Saint-Georges", "Clos des Grandes Vignes", "Clos de la Maréchale", "Clos des Porrets-Saint-Georges", "Clos Saint-Marc", "En la Perrière Noblot", "Les Argillières", "Les Cailles", "Les Chabœufs", "Les Crots", "Les Damodes", "Les Didiers", "Les Hauts Pruliers", "Les Perrières", "Les Porrets-Saint-Georges", "Les Poulettes", "Les Procès", "Les Pruliers", "La Richemone", "Les Saints-Georges", "Les Terres Blanches", "Les Vallerots", "Les Vaucrains", "Roncière", "Rue de Chaux"],
-            "Ladoix": ["Corton", "Corton-Charlemagne", "Basses Mourottes", "Bois Roussot", "En Naget", "Hautes Mourottes", "La Corvée", "La Micaude", "Le Clou d'Orge", "Le Rognet et Corton", "Les Buis", "Les Grêchons et Foutrières", "Les Joyeuses"],
-            "Aloxe-Corton": ["Corton", "Corton-Charlemagne", "Charlemagne", "Clos des Maréchaudes", "Clos du Chapitre", "La Coutière", "La Maréchaude", "La Toppe au Vert", "Les Chaillots", "Les Fournières", "Les Guérets", "Les Maréchaudes", "Les Moutottes", "Les Paulands", "Les Petites Lolières", "Les Valozières", "Les Vercots"],
-            "Pernand-Vergelesses": ["Corton", "Corton-Charlemagne", "Charlemagne", "Clos Berthet", "Creux de la Net", "En Caradeux", "Ile des Vergelesses", "Les Fichots", "Sous Frétille", "Vergelesses", "Village de Pernand"],
-            "Savigny-Lès-Beaune": ["Aux Clous", "Aux Fourneaux", "Aux Gravains", "Aux Guettes", "Aux Serpentières", "Basses Vergelesses", "Bataillière", "Champ Chevrey", "Les Charnières", "La Dominode", "Les Hauts Jarrons", "Les Hauts Marconnets", "Les Jarrons", "Les Lavières", "Les Marconnets", "Les Narbantons", "Les Peuillets", "Les Rouvrettes", "Les Talmettes", "Les Vergelesses", "Petits Godeaux", "Redrescul"],
-            "Beaune": ["A l'Ecu", "Aux Coucherias", "Aux Cras", "Belissand", "Blanches Fleurs", "Champs Pimont", "Clos de l'Ecu", "Clos de la Feguine", "Clos de la Mousse", "Clos des Avaux", "Clos des Ursules", "Clos du Roi", "Clos Saint-Landry", "En Genêt", "En l'Orme", "La Mignotte", "Le Bas des Teurons", "Le Clos des Mouches", "Les Aigrots", "Les Avaux", "Les Boucherottes", "Les Bressandes", "Les Cents Vignes", "Les Chouacheux", "Les Epenotes", "Les Fèves", "Les Grèves", "Les Marconnets", "Les Montrevenots", "Les Perrières", "Les Reversés", "Les Sceaux", "Les Seurey", "Les Sizies", "Les Teurons", "Les Toussaints", "Les Tuvilains", "Les Vignes Franches", "Montée Rouge", "Pertuisots", "Sur les Grèves", "Sur les Grèves-Clos Sainte-Anne"],
-            "Pommard": ["Clos Blanc", "Clos de la Commaraine", "Clos des Epeneaux", "Clos de Verger", "Derrière Saint-Jean", "En Largillière", "Les Arvelets", "Les Bertins", "Les Boucherottes", "La Chanière", "Les Chanlins-Bas", "Les Chaponnières", "Les Charmots", "Le Clos Micot", "Les Combes Dessus", "Les Croix Noires", "Les Fremiers", "Les Grands Epenots", "Les Jarolières", "Les Petits Epenots", "Les Pézerolles", "La Platière", "Les Poutures", "La Refène", "Les Rugiens Bas", "Les Rugiens Hauts", "Les Saussilles", "Le Village"],
-            "Volnay": ["Carelle sous la Chapelle", "Champans", "Clos des 60 Ouvrées", "Clos de l'Audignac", "Clos du Château des Ducs", "Clos des Chênes", "Clos des Ducs", "Clos de la Barre", "Clos de la Bousse d'Or", "Clos de la Cave des Ducs", "Clos de la Chapelle", "Clos de la Rougeotte", "Clos du Verseuil", "En Chevret", "Frémiets", "Frémiets ― Clos de la Rougeotte", "Lassolle", "Les Angles", "Les Brouillards", "Les Caillerets", "La Gigotte", "Les Lurets", "Les Mitans", "Le Ronceret", "Le Village", "Pitures Dessus", "Robardelle", "Santenots", "Taille Pieds"],
-            "Monthélie": ["Clos des Toisières", "La Taupine", "Le Cas Rougeot", "Le Château Gaillard", "Le Clos Gauthey", "Le Clou des Chênes", "Le Meix Bataille", "Le Village", "Les Barbières", "Les Champs Fulliots", "Les Clous", "Les Duresses", "Les Riottes", "Les Vignes Rondes", "Sur la Velle"],
-            "Auxey-Duresses": ["Bas des Duresses", "Climat du Val", "Clos du Val", "Les Bréterins", "La Chapelle", "Les Duresses", "Les Ecussaux", "Les Grands Champs", "Reugne"],
-            "Meursault": ["Blagny", "Charmes", "Clos des Perrières", "Genevrières", "Les Bouchères", "Les Caillerets", "Les Cras", "Les Gouttes d'Or", "La Jeunellotte/Genelotte", "La Pièce sous le Bois", "Les Plures", "Le Porusot", "Les Ravelles", "Les Santenots Blancs", "Les Santenots du Milieu", "Perrières", "Porusot", "Sous Blagny", "Sous le Dos d'Ane"],
-            "Blagny": ["Hameau de Blagny", "La Garenne", "La Jeunellotte", "La Pièce sous le Bois", "Sous le Dos d'Ane", "Sous Blagny", "Sous le Puits"],
-            "Puligny-Montrachet": ["Bâtard-Montrachet", "Bienvenues-Bâtard-Montrachet", "Chevalier-Montrachet", "Montrachet", "Champ Canet", "Champ Gain", "Clavaillon", "Clos de la Garenne", "Clos de la Mouchère", "Hameau de Blagny", "Le Cailleret", "Les Chalumaux", "Les Combettes", "Les Demoiselles", "Les Folatières", "La Garenne", "Les Perrières", "Les Pucelles", "Les Referts", "La Truffière", "Sous le Puits"],
-            "Saint-Aubin": ["Bas de Vermarain à l'Est", "Derrière Chez Edouard", "Derrière la Tour", "Echaille", "En Créot", "En la Ranché", "En Montceau", "En Remilly", "En Vollon à l'Est", "Es Champs", "La Chatenière", "Le Bas de Gamay à l'Est", "Le Charmois", "Le Puits", "Les Castets", "Les Champlots", "Les Combes", "Les Combes au Sud", "Les Cortons", "Les Frionnes", "Les Murgers des Dents de Chien", "Les Perrières", "Les Travers de Marinot", "Marinot", "Pitangeret", "Sous Roche Dumay", "Sur Gamay", "Sur le Sentier du Clou", "Vignes Moingeon", "Village"],
-            "Chassagne-Montrachet": ["Bâtard-Montrachet", "Criots-Bâtard-Montrachet", "(le) Montrachet", "Abbaye de Morgeot", "Blanchot Dessus", "Bois de Chassagne", "Cailleret", "Champs Jendreau", "Chassagne", "Chassagne du Clos Saint-Jean", "Clos Chareau", "Clos Pitois", "Clos Saint-Jean", "Dent de Chien", "En Cailleret", "En Remilly", "En Virondot", "Ez Crets", "Ez Crottes", "Francemont", "Guerchère", "La Boudriotte", "La Cardeuse", "La Chapelle", "La Grande Borne", "La Grande Montagne", "La Maltroie", "La Romanée", "La Roquemaure", "Les Baudines", "Les Bondues", "Les Boirettes", "Les Brussonnes", "Les Champs Gain", "Les Chaumées", "Les Chaumes", "Les Chenevottes", "Les Combards", "Les Commes", "Les Embazées", "Les Fairendes", "Les Grands Clos", "Les Grandes Ruchottes", "Les Macherelles", "Les Murées", "Les Pasquelles", "Les Petits Clos", "Les Petites Fairendes", "Les Places", "Les Rebichets", "Les Vergers", "Morgeot", "Petingeret", "Tête du Clos", "Tonton Marcel", "Vide Bourse", "Vigne Blanche", "Vigne Derrière"],
-            "Santenay": ["Beauregard", "Beaurepaire", "Clos des Mouches", "Clos de Tavannes", "Clos Faubard", "Clos Rousseau", "Grand Clos Rousseau", "La Comme", "Les Gravières", "Les Gravières-Clos de Tavannes", "La Maladière", "Passetemps"],
-            "Maranges": ["Clos de la Boutière", "Clos de la Fussière", "La Fussière", "Le Clos des Loyères", "Le Clos des Rois", "Le Croix Moines", "Les Clos Roussots"],
-            "Rully": ["Clos Saint-Jacques", "Clos du Chaigne", "Le Meix Caillet", "Marissou", "La Fosse", "Agneux", "Les Pierres", "Pillot", "Raclout", "Cloux", "Rabourcé", "Chapitre", "Préaux", "Le Meix Cadot", "Molesme", "Le Bressande", "Champs Cloux", "Le Renarde", "Montpalais", "Grésigny", "Margotés", "Vauvry", "La Pucelle"],
-            "Mercurey": ["Clos des Barraults", "Clos des grands Voyens", "Clos des Myglands", "Clos du Château de Montaigu", "Clos Marcilly", "Clos Tonnerre", "Clos Voyens", "Grand Clos Fortoul", "Griffères", "La Bondue", "La Cailloute", "La Levrière", "La Mission", "Le Clos du Roy", "Le Clos l'Evêque", "Les Byots", "Les Champs Martin", "Les Combins", "Les Crêts", "Les Croichots", "Les Naugues", "Les Puillets", "Les Saumonts", "Les Vasées", "Les Velley", "Sazenay", "Clos de Paradis", "Clos des Montaigus", "La Chassière", "Les Fourneaux", "Les Montaigus", "Les Ruelles"],
-            "Givry": ["Clos Jus", "Le Champ Lalot", "Champ Nalot", "Crémillons", "Clos du Cras Long", "La Grande Berge", "En Choué", "Clos Marole", "Petit Marole", "Cellier aux Moines", "Servoisine", "Les Bois Chevaux", "Clos-Saint-Pierre", "Clos-Saint-Paul", "Clos Charlé", "Le Petit Prétan", "Les Grands Prétans", "Clos Salomon", "Clos du Vernoy", "Le Paradis", "Les Grandes Vignes", "Clos Marceaux", "Le Vigron", "Les Bois Gautiers", "Clos de la Baraude", "A Vigne Rouge", "En Veau", "La Brulee", "La Petite Berge", "Le Vernoy", "Les Combes", "Les Galaffres", "Le Pied du Clou", "Pied de Chaume", "La Plante", "La Matrosse", "Le Médenchot", "Crauzot (alt. Crausot)"],
-            "Montagny": ["Le Clouzot", "Les Pidances", "Les Coudrettes", "Les Vignes Longues", "Cornevent", "Mont Laurent", "Les Bonneveaux", "Les Bassets", "Les Coères", "Les Chaniots", "Chazelle", "Vignes Saint-Pierre", "Les Combes", "Saint-Ytages", "Les Chaumelottes", "Champ Toizeau", "Vignes sur le Cloux", "Les Garchères", "Vignes Couland", "Les Bouchots", "Les Burnins", "Les Perrières", "Les Treuffères", "Montcuchot", "Vigne du Soleil", "Les Maroques", "Les Beaux Champs", "Les Macles", "Creux de Beaux Champs", "L'Epaule", "Les Platières", "Les Jardins", "Sainte-Morille", "Les Vignes Derrière", "Les Bordes", "Les Las", "Les Gouresses", "Les Paquiers", "Montorge", "Les Resses", "Le Cloux", "Sous les Feilles", "La Moullière", "Les Craboulettes", "Le Clos Chaudron", "Le Grand Pièce", "Les Vignes des Prés", "Le Vieux Château", "La Condemine le Vieux Château"],
-            "Pouilly-Fuissé": ["Le Clos de Monsieur Noly", "Les Chevrières", "Aux Quarts", "Le Clos Reyssier", "Le Clos", "Les Brulés", "Les Ménétrières", "Les Reisses", "Les Vignes Blanches", "Les Perrières", "Vers Cras", "La Frérie", "Le Clos de Solutré", "Au Vignerais", "En Servy", "Aux Bouthières", "Aux Chailloux", "Pouilly", "Les Crays", "La Maréchaude", "Sur la Roche", "En France"],
-            "Brouilly": ["Pisse-Vieille"],
-            "Chiroubles": ["La Grosse Pierre", "Les Côtes"],
-            "Chénas": ["Les Brureaux", "Clos aux Blémonts"],
-            "Côte de Brouilly": ["L’Héronde", "L’Ecluse"],
-            "Fleurie": ["Les Côtes", "Le Bon Cru", "La Roilette", "Les Moriers", "Les Roches", "Les Garants", "Poncié", "Montgenas", "La Chapelle de Bois", "La Madone", "Grille-Midi", "Champagne", "La Joie du Palais"],
-            "Juliénas": ["Les Capitans", "Les Fouillouses", "Les Mouilles", "La Bottière", "Vayolette", "Bessay", "En Rizière", "Beauvernay", "Bois de la Salle", "Cotoyon"],
-            "Morgon": ["Douby", "Les Charmes", "Côte du Py", "Grand Cras", "Corcelette", "Les Micouds"],
-            "Moulin-à-Vent": ["La Bruyère", "Les Gros Vosges", "Maisons neuves", "La Grande Charrière", "Les Michelons", "Le Moulin à Vent", "Champagne", "Champs de Cour", "Les Deschamps", "Le Carquelin", "Le Mont", "Le Plantier de Fabre", "Les Pinchons", "Les Bruyères des Thorins", "Les Seignaux", "Les Dégollets", "Les Thorins", "Morperay", "La Tour du Bief", "La Galletière", "Les Vérillats", "Les Fromentaux", "Le Vieux Bourg", "La Teppe", "Les Vierres Manins", "Petit Brenay", "Les Prés Ouverts", "En Brenay", "Les Pérelles", "La Pierre", "Les Moriers", "Moulin Lure", "Les Philibons", "En Reclaine", "La Delatte", "Bois Pondevaux", "La Roche", "Les Bûches", "Le Petit Morier", "Les Brussellion", "Bois Maréchaux", "Les Fargets", "Les Rouchaux (auds)", "Les Gimarets", "Les Combes", "Les Seignes", "Bois Combe", "Les Moussières", "Les Petits Bois", "Les Millettes", "Les Grenériers", "Les Burdelines", "Les Guillattes", "Les Graiairiers", "Les Amandilliers", "Le Fonds de Morier", "Le Bief", "En Morier", "Les Blancs", "Champ Poirier", "Les Caves", "Les Maitairiers", "Chassignol", "Les Michauds", "La Coudrière", "Les Ecorchés", "Deschanes", "La Ranche", "Les Joies", "Les Garniers", "La Dîme", "Les Condemeines", "Rochegrès", "Le Venet", "La Rochelle", "Les Burdins", "Rochenoire", "Petites Caves", "Terre du Thé", "Les Rats", "Les Brasses", "Les Hantes", "Les Grolliers"],
-            "Régnié": ["Grange-Charton", "La Haute Plaigne"],
-            "Saint-Amour": ["Côte de Besset", "Les Champs Grillés", "Le Clos de la Brosse", "Le Clos de Guillons", "Le Chatelet", "Le Clos des Billards", "Les Bonnets", "Le Mas des Tines", "Vers l’Eglise", "En Paradis", "La Folie", "Le Clos du Chapître"]
+            "Chablis": {
+                "Grand Cru": ["Blanchot", "Bougros", "Grenouilles", "Les Clos", "Preuses", "Valmur", "Vaudésir"],
+                "Premier Cru": ["Berdiot", "Chapelot", "Côte de Bréchain", "Côte de Fontenay", "Côte des Prés Girots", "Côte de Vaubarousse", "Fourchaume", "L'Homme Mort", "Les Fourneaux", "Mont de Milieu", "Montée de Tonnerre", "Morein", "Pied d'Aloup", "Vaucoupin", "Vaulorent", "Vaupulent", "Beauroy", "Beugnons", "Butteaux", "Chatains", "Chaume de Talvat", "Côte de Léchet", "Côte de Cuisy", "Côte de Jouan", "Côte de Savant", "Forêts", "Les Beauregards", "Les Épinottes", "Les Lys", "Mélinots", "Montmains", "Roncières", "Sécher", "Troesmes", "Vau de Vey", "Vaillons", "Vaugiraut", "Vosgros", "Vau Ligneau", "Vaux Ragons"]
+            },
+            "Fixin": {
+                "Premier Cru": ["Arvelets", "Clos de la Perrière", "Clos Napoléon", "Hervelets", "Le Clos du Chapitre", "Les Meix Bas"]
+            },
+            "Gevrey-Chambertin": {
+                "Grand Cru": ["Chambertin", "Chambertin Clos de Bèze", "Chapelle-Chambertin", "Charmes-Chambertin", "Griotte-Chambertin", "Latricières-Chambertin", "Mazis-Chambertin", "Mazoyères-Chambertin", "Ruchottes-Chambertin"],
+                "Premier Cru": ["Au-Closeau", "Aux Combottes", "Bel Air", "Champonnet", "Cherbaudes", "Clos des Varoilles", "Clos du Chapitre", "Clos Prieur", "Clos Saint-Jacques", "Craipillot", "En Ergot", "Estournelles-Saint-Jacques", "Fonteny", "Issarts", "La Boissière", "La Combe-au-Moine", "La Perrière", "La Romanée", "Lavaux-Saint-Jacques", "Les Cazetiers", "Les Champeaux", "Les Corbeaux", "Les Goulots", "Les Petits-Cazetiers", "Petite-Chapelle", "Poissenot"]
+            },
+            "Morey-Saint-Denis": {
+                "Grand Cru": ["Bonnes Mares", "Clos de La Roche", "Clos de Tart", "Clos des Lambrays", "Clos Saint-Denis"],
+                "Premier Cru": ["Aux Charmes", "Aux Cheseaux", "Clos Baulet", "Clos des Ormes", "Clos Sorbè", "Côte Rotie", "La Bussière", "La Riotte", "Le Village", "Les Blanchards", "Les Chaffots", "Les Charrières", "Les Chenevery", "Les Faconnières", "Les Genavrières", "Les Gruenchers", "Les Millandes", "Les Ruchots", "Les Sorbès", "Monts Luisants"]
+            },
+            "Chambolle-Musigny": {
+                "Grand Cru": ["Bonnes Mares", "Musigny"],
+                "Premier Cru": ["Aux Beaux Bruns", "Aux Combottes", "Aux Échanges", "Derrière la Grange", "La Combe d'Orveau", "Les Amoureuses", "Les Baudes", "Les Borniques", "Les Carrières", "Les Chabiots", "Les Charmes", "Les Chatelots", "Les Cras", "Les Feusselottes/Les Feusselotes", "Les Fuées", "Les Grand Murs", "Les Groseilles", "Les Gruenchers", "Les Hauts-Doix", "Les Lavrottes", "Les Noirots", "Les Plantes", "Les Sentiers", "Les Véroilles"]
+            },
+            "Vougeot": {
+                "Grand Cru": ["Clos de Vougeot"],
+                "Premier Cru": ["Clos de la Perrière", "Le Clos Blanc", "Les Crâs", "Le Petits Vougeots"]
+            },
+            "Vosne-Romanée": {
+                "Grand Cru": ["Echézeaux", "Grands-Echézeaux", "La Grande Rue", "Richebourg", "La Romanée", "Romanée-Conti", "Romanée-Saint-Vivant", "La Tâche"],
+                "Premier Cru": ["Aux Brûlées", "Au-dessus des Malconsorts", "Aux Malconsorts", "Aux Raignots", "Clos des Réas", "Cros Parantoux", "En Orveaux", "Les Beaux Monts", "Les Chaumes", "La Croix Rameau", "Les Gaudichots", "Les Petits Monts", "Les Rouges", "Les Suchots"]
+            },
+            "Nuits-Saint-Georges": {
+                "Premier Cru": ["Aux Argillas", "Aux Boudots", "Aux Bousselots", "Aux Chaignots", "Aux Champs Perdrix", "Aux Cras", "Aux Murgers", "Aux Perdrix", "Aux Thorey", "Aux Vignerondes", "Chaines Carteaux", "Château Gris", "Clos Arlot", "Clos des Argillières", "Clos des Corvées", "Clos des Corvées Pagets", "Clos des Forêts Saint-Georges", "Clos des Grandes Vignes", "Clos de la Maréchale", "Clos des Porrets-Saint-Georges", "Clos Saint-Marc", "En la Perrière Noblot", "Les Argillières", "Les Cailles", "Les Chabœufs", "Les Crots", "Les Damodes", "Les Didiers", "Les Hauts Pruliers", "Les Perrières", "Les Porrets-Saint-Georges", "Les Poulettes", "Les Procès", "Les Pruliers", "La Richemone", "Les Saints-Georges", "Les Terres Blanches", "Les Vallerots", "Les Vaucrains", "Roncière", "Rue de Chaux"]
+            },
+            "Ladoix": {
+                "Grand Cru": ["Corton", "Corton-Charlemagne"],
+                "Premier Cru": ["Basses Mourottes", "Bois Roussot", "En Naget", "Hautes Mourottes", "La Corvée", "La Micaude", "Le Clou d'Orge", "Le Rognet et Corton", "Les Buis", "Les Grêchons et Foutrières", "Les Joyeuses"]
+            },
+            "Aloxe-Corton": {
+                "Grand Cru": ["Corton", "Corton-Charlemagne", "Charlemagne"],
+                "Premier Cru": ["Clos des Maréchaudes", "Clos du Chapitre", "La Coutière", "La Maréchaude", "La Toppe au Vert", "Les Chaillots", "Les Fournières", "Les Guérets", "Les Maréchaudes", "Les Moutottes", "Les Paulands", "Les Petites Lolières", "Les Valozières", "Les Vercots"]
+            },
+            "Pernand-Vergelesses": {
+                "Grand Cru": ["Corton", "Corton-Charlemagne", "Charlemagne"],
+                "Premier Cru": ["Clos Berthet", "Creux de la Net", "En Caradeux", "Ile des Vergelesses", "Les Fichots", "Sous Frétille", "Vergelesses", "Village de Pernand"]
+            },
+            "Savigny-Lès-Beaune": {
+                "Premier Cru": ["Aux Clous", "Aux Fourneaux", "Aux Gravains", "Aux Guettes", "Aux Serpentières", "Basses Vergelesses", "Bataillière", "Champ Chevrey", "Les Charnières", "La Dominode", "Les Hauts Jarrons", "Les Hauts Marconnets", "Les Jarrons", "Les Lavières", "Les Marconnets", "Les Narbantons", "Les Peuillets", "Les Rouvrettes", "Les Talmettes", "Les Vergelesses", "Petits Godeaux", "Redrescul"]
+            },
+            "Beaune": {
+                "Premier Cru": ["A l'Ecu", "Aux Coucherias", "Aux Cras", "Belissand", "Blanches Fleurs", "Champs Pimont", "Clos de l'Ecu", "Clos de la Feguine", "Clos de la Mousse", "Clos des Avaux", "Clos des Ursules", "Clos du Roi", "Clos Saint-Landry", "En Genêt", "En l'Orme", "La Mignotte", "Le Bas des Teurons", "Le Clos des Mouches", "Les Aigrots", "Les Avaux", "Les Boucherottes", "Les Bressandes", "Les Cents Vignes", "Les Chouacheux", "Les Epenotes", "Les Fèves", "Les Grèves", "Les Marconnets", "Les Montrevenots", "Les Perrières", "Les Reversés", "Les Sceaux", "Les Seurey", "Les Sizies", "Les Teurons", "Les Toussaints", "Les Tuvilains", "Les Vignes Franches", "Montée Rouge", "Pertuisots", "Sur les Grèves", "Sur les Grèves-Clos Sainte-Anne"]
+            },
+            "Pommard": {
+                "Premier Cru": ["Clos Blanc", "Clos de la Commaraine", "Clos des Epeneaux", "Clos de Verger", "Derrière Saint-Jean", "En Largillière", "Les Arvelets", "Les Bertins", "Les Boucherottes", "La Chanière", "Les Chanlins-Bas", "Les Chaponnières", "Les Charmots", "Le Clos Micot", "Les Combes Dessus", "Les Croix Noires", "Les Fremiers", "Les Grands Epenots", "Les Jarolières", "Les Petits Epenots", "Les Pézerolles", "La Platière", "Les Poutures", "La Refène", "Les Rugiens Bas", "Les Rugiens Hauts", "Les Saussilles", "Le Village"]
+            },
+            "Volnay": {
+                "Premier Cru": ["Carelle sous la Chapelle", "Champans", "Clos des 60 Ouvrées", "Clos de l'Audignac", "Clos du Château des Ducs", "Clos des Chênes", "Clos des Ducs", "Clos de la Barre", "Clos de la Bousse d'Or", "Clos de la Cave des Ducs", "Clos de la Chapelle", "Clos de la Rougeotte", "Clos du Verseuil", "En Chevret", "Frémiets", "Frémiets ― Clos de la Rougeotte", "Lassolle", "Les Angles", "Les Brouillards", "Les Caillerets", "La Gigotte", "Les Lurets", "Les Mitans", "Le Ronceret", "Le Village", "Pitures Dessus", "Robardelle", "Santenots", "Taille Pieds"]
+            },
+            "Monthélie": {
+                "Premier Cru": ["Clos des Toisières", "La Taupine", "Le Cas Rougeot", "Le Château Gaillard", "Le Clos Gauthey", "Le Clou des Chênes", "Le Meix Bataille", "Le Village", "Les Barbières", "Les Champs Fulliots", "Les Clous", "Les Duresses", "Les Riottes", "Les Vignes Rondes", "Sur la Velle"]
+            },
+            "Auxey-Duresses": {
+                "Premier Cru": ["Bas des Duresses", "Climat du Val", "Clos du Val", "Les Bréterins", "La Chapelle", "Les Duresses", "Les Ecussaux", "Les Grands Champs", "Reugne"]
+            },
+            "Meursault": {
+                "Premier Cru": ["Blagny", "Charmes", "Clos des Perrières", "Genevrières", "Les Bouchères", "Les Caillerets", "Les Cras", "Les Gouttes d'Or", "La Jeunellotte/Genelotte", "La Pièce sous le Bois", "Les Plures", "Le Porusot", "Les Ravelles", "Les Santenots Blancs", "Les Santenots du Milieu", "Perrières", "Porusot", "Sous Blagny", "Sous le Dos d'Ane"]
+            },
+            "Blagny": {
+                "Premier Cru": ["Hameau de Blagny", "La Garenne", "La Jeunellotte", "La Pièce sous le Bois", "Sous le Dos d'Ane", "Sous Blagny", "Sous le Puits"]
+            },
+            "Puligny-Montrachet": {
+                "Grand Cru": ["Bâtard-Montrachet", "Bienvenues-Bâtard-Montrachet", "Chevalier-Montrachet", "Montrachet"],
+                "Premier Cru": ["Champ Canet", "Champ Gain", "Clavaillon", "Clos de la Garenne", "Clos de la Mouchère", "Hameau de Blagny", "Le Cailleret", "Les Chalumaux", "Les Combettes", "Les Demoiselles", "Les Folatières", "La Garenne", "Les Perrières", "Les Pucelles", "Les Referts", "La Truffière", "Sous le Puits"]
+            },
+            "Saint-Aubin": {
+                "Premier Cru": ["Bas de Vermarain à l'Est", "Derrière Chez Edouard", "Derrière la Tour", "Echaille", "En Créot", "En la Ranché", "En Montceau", "En Remilly", "En Vollon à l'Est", "Es Champs", "La Chatenière", "Le Bas de Gamay à l'Est", "Le Charmois", "Le Puits", "Les Castets", "Les Champlots", "Les Combes", "Les Combes au Sud", "Les Cortons", "Les Frionnes", "Les Murgers des Dents de Chien", "Les Perrières", "Les Travers de Marinot", "Marinot", "Pitangeret", "Sous Roche Dumay", "Sur Gamay", "Sur le Sentier du Clou", "Vignes Moingeon", "Village"]
+            },
+            "Chassagne-Montrachet": {
+                "Grand Cru": ["Bâtard-Montrachet", "Criots-Bâtard-Montrachet", "(le) Montrachet"],
+                "Premier Cru": ["Abbaye de Morgeot", "Blanchot Dessus", "Bois de Chassagne", "Cailleret", "Champs Jendreau", "Chassagne", "Chassagne du Clos Saint-Jean", "Clos Chareau", "Clos Pitois", "Clos Saint-Jean", "Dent de Chien", "En Cailleret", "En Remilly", "En Virondot", "Ez Crets", "Ez Crottes", "Francemont", "Guerchère", "La Boudriotte", "La Cardeuse", "La Chapelle", "La Grande Borne", "La Grande Montagne", "La Maltroie", "La Romanée", "La Roquemaure", "Les Baudines", "Les Bondues", "Les Boirettes", "Les Brussonnes", "Les Champs Gain", "Les Chaumées", "Les Chaumes", "Les Chenevottes", "Les Combards", "Les Commes", "Les Embazées", "Les Fairendes", "Les Grands Clos", "Les Grandes Ruchottes", "Les Macherelles", "Les Murées", "Les Pasquelles", "Les Petits Clos", "Les Petites Fairendes", "Les Places", "Les Rebichets", "Les Vergers", "Morgeot", "Petingeret", "Tête du Clos", "Tonton Marcel", "Vide Bourse", "Vigne Blanche", "Vigne Derrière"]
+            },
+            "Santenay": {
+                "Premier Cru": ["Beauregard", "Beaurepaire", "Clos des Mouches", "Clos de Tavannes", "Clos Faubard", "Clos Rousseau", "Grand Clos Rousseau", "La Comme", "Les Gravières", "Les Gravières-Clos de Tavannes", "La Maladière", "Passetemps"]
+            },
+            "Maranges": {
+                "Premier Cru": ["Clos de la Boutière", "Clos de la Fussière", "La Fussière", "Le Clos des Loyères", "Le Clos des Rois", "Le Croix Moines", "Les Clos Roussots"]
+            },
+            "Rully": {
+                "Premier Cru": ["Clos Saint-Jacques", "Clos du Chaigne", "Le Meix Caillet", "Marissou", "La Fosse", "Agneux", "Les Pierres", "Pillot", "Raclout", "Cloux", "Rabourcé", "Chapitre", "Préaux", "Le Meix Cadot", "Molesme", "Le Bressande", "Champs Cloux", "Le Renarde", "Montpalais", "Grésigny", "Margotés", "Vauvry", "La Pucelle"]
+            },
+            "Mercurey": {
+                "Premier Cru": ["Clos des Barraults", "Clos des grands Voyens", "Clos des Myglands", "Clos du Château de Montaigu", "Clos Marcilly", "Clos Tonnerre", "Clos Voyens", "Grand Clos Fortoul", "Griffères", "La Bondue", "La Cailloute", "La Levrière", "La Mission", "Le Clos du Roy", "Le Clos l'Evêque", "Les Byots", "Les Champs Martin", "Les Combins", "Les Crêts", "Les Croichots", "Les Naugues", "Les Puillets", "Les Saumonts", "Les Vasées", "Les Velley", "Sazenay", "Clos de Paradis", "Clos des Montaigus", "La Chassière", "Les Fourneaux", "Les Montaigus", "Les Ruelles"]
+            },
+            "Givry": {
+                "Premier Cru": ["Clos Jus", "Le Champ Lalot", "Champ Nalot", "Crémillons", "Clos du Cras Long", "La Grande Berge", "En Choué", "Clos Marole", "Petit Marole", "Cellier aux Moines", "Servoisine", "Les Bois Chevaux", "Clos-Saint-Pierre", "Clos-Saint-Paul", "Clos Charlé", "Le Petit Prétan", "Les Grands Prétans", "Clos Salomon", "Clos du Vernoy", "Le Paradis", "Les Grandes Vignes", "Clos Marceaux", "Le Vigron", "Les Bois Gautiers", "Clos de la Baraude", "A Vigne Rouge", "En Veau", "La Brulee", "La Petite Berge", "Le Vernoy", "Les Combes", "Les Galaffres", "Le Pied du Clou", "Pied de Chaume", "La Plante", "La Matrosse", "Le Médenchot", "Crauzot (alt. Crausot)"]
+            },
+            "Montagny": {
+                "Premier Cru": ["Le Clouzot", "Les Pidances", "Les Coudrettes", "Les Vignes Longues", "Cornevent", "Mont Laurent", "Les Bonneveaux", "Les Bassets", "Les Coères", "Les Chaniots", "Chazelle", "Vignes Saint-Pierre", "Les Combes", "Saint-Ytages", "Les Chaumelottes", "Champ Toizeau", "Vignes sur le Cloux", "Les Garchères", "Vignes Couland", "Les Bouchots", "Les Burnins", "Les Perrières", "Les Treuffères", "Montcuchot", "Vigne du Soleil", "Les Maroques", "Les Beaux Champs", "Les Macles", "Creux de Beaux Champs", "L'Epaule", "Les Platières", "Les Jardins", "Sainte-Morille", "Les Vignes Derrière", "Les Bordes", "Les Las", "Les Gouresses", "Les Paquiers", "Montorge", "Les Resses", "Le Cloux", "Sous les Feilles", "La Moullière", "Les Craboulettes", "Le Clos Chaudron", "Le Grand Pièce", "Les Vignes des Prés", "Le Vieux Château", "La Condemine le Vieux Château"]
+            },
+            "Pouilly-Fuissé": {
+                "Premier Cru": ["Le Clos de Monsieur Noly", "Les Chevrières", "Aux Quarts", "Le Clos Reyssier", "Le Clos", "Les Brulés", "Les Ménétrières", "Les Reisses", "Les Vignes Blanches", "Les Perrières", "Vers Cras", "La Frérie", "Le Clos de Solutré", "Au Vignerais", "En Servy", "Aux Bouthières", "Aux Chailloux", "Pouilly", "Les Crays", "La Maréchaude", "Sur la Roche", "En France"]
+            },
+            "Brouilly": {
+                "Lieux-dits": ["Pisse-Vieille"]
+            },
+            "Chiroubles": {
+                "Lieux-dits": ["La Grosse Pierre", "Les Côtes"]
+            },
+            "Chénas": {
+                "Lieux-dits": ["Les Brureaux", "Clos aux Blémonts"]
+            },
+            "Côte de Brouilly": {
+                "Lieux-dits": ["L’Héronde", "L’Ecluse"]
+            },
+            "Fleurie": {
+                "Lieux-dits": ["Les Côtes", "Le Bon Cru", "La Roilette", "Les Moriers", "Les Roches", "Les Garants", "Poncié", "Montgenas", "La Chapelle de Bois", "La Madone", "Grille-Midi", "Champagne", "La Joie du Palais"]
+            },
+            "Juliénas": {
+                "Lieux-dits": ["Les Capitans", "Les Fouillouses", "Les Mouilles", "La Bottière", "Vayolette", "Bessay", "En Rizière", "Beauvernay", "Bois de la Salle", "Cotoyon"]
+            },
+            "Morgon": {
+                "Lieux-dits": ["Douby", "Les Charmes", "Côte du Py", "Grand Cras", "Corcelette", "Les Micouds"]
+            },
+            "Moulin-à-Vent": {
+                "Lieux-dits": ["La Bruyère", "Les Gros Vosges", "Maisons neuves", "La Grande Charrière", "Les Michelons", "Le Moulin à Vent", "Champagne", "Champs de Cour", "Les Deschamps", "Le Carquelin", "Le Mont", "Le Plantier de Fabre", "Les Pinchons", "Les Bruyères des Thorins", "Les Seignaux", "Les Dégollets", "Les Thorins", "Morperay", "La Tour du Bief", "La Galletière", "Les Vérillats", "Les Fromentaux", "Le Vieux Bourg", "La Teppe", "Les Vierres Manins", "Petit Brenay", "Les Prés Ouverts", "En Brenay", "Les Pérelles", "La Pierre", "Les Moriers", "Moulin Lure", "Les Philibons", "En Reclaine", "La Delatte", "Bois Pondevaux", "La Roche", "Les Bûches", "Le Petit Morier", "Les Brussellion", "Bois Maréchaux", "Les Fargets", "Les Rouchaux (auds)", "Les Gimarets", "Les Combes", "Les Seignes", "Bois Combe", "Les Moussières", "Les Petits Bois", "Les Millettes", "Les Grenériers", "Les Burdelines", "Les Guillattes", "Les Graiairiers", "Les Amandilliers", "Le Fonds de Morier", "Le Bief", "En Morier", "Les Blancs", "Champ Poirier", "Les Caves", "Les Maitairiers", "Chassignol", "Les Michauds", "La Coudrière", "Les Ecorchés", "Deschanes", "La Ranche", "Les Joies", "Les Garniers", "La Dîme", "Les Condemeines", "Rochegrès", "Le Venet", "La Rochelle", "Les Burdins", "Rochenoire", "Petites Caves", "Terre du Thé", "Les Rats", "Les Brasses", "Les Hantes", "Les Grolliers"]
+            },
+            "Régnié": {
+                "Lieux-dits": ["Grange-Charton", "La Haute Plaigne"]
+            },
+            "Saint-Amour": {
+                "Lieux-dits": ["Côte de Besset", "Les Champs Grillés", "Le Clos de la Brosse", "Le Clos de Guillons", "Le Chatelet", "Le Clos des Billards", "Les Bonnets", "Le Mas des Tines", "Vers l’Eglise", "En Paradis", "La Folie", "Le Clos du Chapître"]
+            }
         };
 
         // DOM Elements
@@ -182,6 +295,11 @@
         const welcomeModal = document.getElementById('welcome-modal');
         const modalOverlay = document.getElementById('modal-overlay');
         const startGameButton = document.getElementById('start-game-button');
+        const studyModal = document.getElementById('study-modal');
+        const studyModalOverlay = document.getElementById('study-modal-overlay');
+        const studyButton = document.getElementById('study-button');
+        const closeStudyButton = document.getElementById('close-study-button');
+        const studyContent = document.getElementById('study-content');
         const feedbackModal = document.getElementById('feedback-modal');
         const feedbackModalOverlay = document.getElementById('feedback-modal-overlay');
         const feedbackTitle = document.getElementById('feedback-title');
@@ -235,11 +353,22 @@
             roundCounterEl.textContent = `${currentRound} / ${totalRounds}`;
 
             const villages = Object.keys(vineyardData);
-            let potentialVillages = villages.filter(v => vineyardData[v].length >= 3);
+            let potentialVillages = villages.filter(village => {
+                const villageVineyards = vineyardData[village];
+                const total = (villageVineyards["Grand Cru"]?.length || 0) + 
+                              (villageVineyards["Premier Cru"]?.length || 0) + 
+                              (villageVineyards["Lieux-dits"]?.length || 0);
+                return total >= 3;
+            });
             correctVillage = potentialVillages[Math.floor(Math.random() * potentialVillages.length)];
             
-            const vineyardPool = [...vineyardData[correctVillage]];
-            const selectedVineyards = shuffle(vineyardPool).slice(0, 3);
+            const allVineyardsForVillage = [
+                ...(vineyardData[correctVillage]["Grand Cru"] || []),
+                ...(vineyardData[correctVillage]["Premier Cru"] || []),
+                ...(vineyardData[correctVillage]["Lieux-dits"] || [])
+            ];
+
+            const selectedVineyards = shuffle(allVineyardsForVillage).slice(0, 3);
 
             vineyardsEl.innerHTML = '';
             selectedVineyards.forEach(vineyard => {
@@ -350,6 +479,40 @@
             }
             finalMessage.textContent = message;
         }
+        
+        function populateStudyGuide() {
+            studyContent.innerHTML = '';
+            const sortedVillages = Object.keys(vineyardData).sort();
+
+            for (const village of sortedVillages) {
+                const villageData = vineyardData[village];
+                const villageDiv = document.createElement('div');
+                villageDiv.className = 'mb-6';
+                
+                const villageTitle = document.createElement('h3');
+                villageTitle.className = 'text-2xl font-bold text-red-800 title-font border-b-2 border-red-800/20 pb-1 mb-3';
+                villageTitle.textContent = village.replace(/ AOP$/, "");
+                villageDiv.appendChild(villageTitle);
+
+                const classifications = ["Grand Cru", "Premier Cru", "Lieux-dits"];
+                classifications.forEach(classification => {
+                    if (villageData[classification] && villageData[classification].length > 0) {
+                        const classificationTitle = document.createElement('h4');
+                        classificationTitle.className = 'text-lg font-semibold text-gray-700 mt-2 mb-1';
+                        // Correctly handle pluralization
+                        classificationTitle.textContent = classification === 'Lieux-dits' ? 'Lieux-dits' : classification + 's';
+                        villageDiv.appendChild(classificationTitle);
+
+                        const vineyardList = document.createElement('p');
+                        vineyardList.className = 'text-gray-600 leading-relaxed';
+                        vineyardList.textContent = villageData[classification].sort().join(', ');
+                        villageDiv.appendChild(vineyardList);
+                    }
+                });
+                
+                studyContent.appendChild(villageDiv);
+            }
+        }
 
         // --- Event Listeners ---
         window.onload = () => {
@@ -363,6 +526,17 @@
             mainContent.classList.remove('hidden');
             initializeGame();
         });
+        
+        studyButton.addEventListener('click', () => {
+            populateStudyGuide();
+            studyModal.classList.add('active');
+            studyModalOverlay.classList.add('active');
+        });
+        
+        closeStudyButton.addEventListener('click', () => {
+            studyModal.classList.remove('active');
+            studyModalOverlay.classList.remove('active');
+        });
 
         continueButton.addEventListener('click', advanceGame);
         playAgainButton.addEventListener('click', initializeGame);
@@ -371,4 +545,3 @@
 
 </body>
 </html>
-
